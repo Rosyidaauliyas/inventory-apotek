@@ -24,29 +24,32 @@ class MasterObat extends Model
     }
 
     /**
-     * PHP 8.4 PROPERTY HOOKS: Agregasi Stok AMAN
+     * Agregasi Stok AMAN
      * Hanya menjumlahkan stok yang > 0 DAN belum kadaluarsa.
      */
-    public int $total_stok {
-        get => $this->batches()
+    public function getTotalStokAttribute(): int
+    {
+        return $this->batches()
                     ->where('stok', '>', 0)
                     ->whereDate('tgl_kadaluarsa', '>', now()) // Filter pengaman
                     ->sum('stok');
     }
 
     /**
-     * PROPERTY HOOK: Status Kritis
+     * Status Kritis
      * Mengecek ambang batas berdasarkan stok yang aman saja.
      */
-    public bool $is_kritis {
-        get => $this->total_stok < ($this->stok_minimal ?? 10);
+    public function getIsKritisAttribute(): bool
+    {
+        return $this->total_stok < ($this->stok_minimal ?? 10);
     }
 
     /**
-     * PROPERTY HOOK: Label Identitas untuk Dropdown
+     * Label Identitas untuk Dropdown
      * Menampilkan informasi stok valid agar user tidak bingung.
      */
-    public string $full_label {
-        get => "[{$this->kode_obat}] {$this->nama_obat} (Tersedia: {$this->total_stok} {$this->satuan})";
+    public function getFullLabelAttribute(): string
+    {
+        return "[{$this->kode_obat}] {$this->nama_obat} (Tersedia: {$this->total_stok} {$this->satuan})";
     }
 }
